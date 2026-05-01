@@ -27,10 +27,13 @@ You can start developing by editing the files inside the **app** directory. This
 
 ## Development
 
-1. khusan
-2. http server
-3. websocket server
-4. khusan docs
-5. khubus
-6. graphql server
+1. khusan - usanapp
+2. http server - usanhttp
+3. websocket server - usanws
+4. khusan docs - usandocs
+5. khubus - busapp
+6. graphql server - bushttp
 7. continuing
+8. docs include settings
+9. crawling
+10. infra
