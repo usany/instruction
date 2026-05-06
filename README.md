@@ -90,7 +90,7 @@ function gcb() {
 function Git-Commit {
     $prompt = 'Write a commit message in the Conventional Commits format.'
 
-    $commitMessage = (git diff --cached | opencode --model opencode/minimax-m2.5-free run $prompt).Trim()
+    $commitMessage = (git diff --cached | opencode --model opencode/big-pickle run $prompt).Trim()
 
     if ([string]::IsNullOrWhiteSpace($commitMessage)) {
         Write-Host "No commit message generated. Aborting commit." -ForegroundColor Yellow
@@ -142,7 +142,7 @@ function Git-Deno {
     git add $stagedFiles
 }
 # Aliases
-Set-Alias -Name gc -Value Git-Commit
-Set-Alias -Name gitb -Value Git-Biome
-Set-Alias -Name gitd -Value Git-Deno
+Set-Alias -Name gcb -Value Git-Commit
+Set-Alias -Name gab -Value Git-Biome
+Set-Alias -Name gad -Value Git-Deno
 ```
