@@ -87,45 +87,62 @@ function gcb() {
 ```
 # POSH
 ```bash
-# Git-Biome
-function gitb() {
-    stagedFiles=$(git diff --cached --name-only)
+function Git-Commit {
+    $prompt = 'Write a commit message in the Conventional Commits format.'
 
-    if [[ -z "$stagedFiles" ]]; then
-        echo "No staged files found. Aborting commit."
-        return 1
-    fi
+    $commitMessage = (git diff --cached | opencode --model opencode/minimax-m2.5-free run $prompt).Trim()
 
-    echo "Running biome format on staged files..."
+    if ([string]::IsNullOrWhiteSpace($commitMessage)) {
+        Write-Host "No commit message generated. Aborting commit." -ForegroundColor Yellow
+        Write-Host "This might be because there are no staged changes." -ForegroundColor Yellow
+        return # Exit the function
+    }
+
+    git commit -m $commitMessage
+
+    if ($LASTEXITCODE -eq 0) {
+        git log --stat -1
+    }
+}
+function Git-Biome {
+    # Get staged files
+    $stagedFiles = git diff --cached --name-only
+
+    if (-not $stagedFiles) {
+        Write-Host "No staged files found. Aborting commit." -ForegroundColor Yellow
+        return
+    }
+
+    # Run biome format on staged files
+    Write-Host "Running biome format on staged files..."
     npx biome check --write -- $stagedFiles
-
-    echo "Re-adding formatted files to commit..."
+    # Re-add formatted files to the commit
+    Write-Host "Re-adding formatted files to commit..."
     git add $stagedFiles
 }
+function Git-Deno {
+    # Get staged files
+    $stagedFiles = git diff --cached --name-only
 
-# Git-Deno
-function gitd() {
-    stagedFiles=$(git diff --cached --name-only)
+    if (-not $stagedFiles) {
+        Write-Host "No staged files found. Aborting commit." -ForegroundColor Yellow
+        return
+    }
 
-    if [[ -z "$stagedFiles" ]]; then
-        echo "No staged files found. Aborting commit."
-        return 1
-    fi
-
-    echo "Running deno lint on staged files..."
-    deno lint $stagedFiles
-
-    echo "Running deno format on staged files..."
-    deno fmt $stagedFiles
-    if [[ $? -ne 0 ]]; then
-        echo "Deno format failed. Aborting commit."
-        return 1
-    fi
-
+    # Run npm lint script on staged files
+    Write-Host "Running deno lint on staged files..."
+    deno lint @($stagedFiles)
+    # Run biome format on staged files
+    Write-Host "Running deno format on staged files..."
+    deno fmt @($stagedFiles)
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "Biome format failed. Aborting commit." -ForegroundColor Red
+        return
+    }
     git add $stagedFiles
 }
-
 # Aliases
-alias gab="gitb"
-alias gad="gitd"
+Set-Alias -Name gc -Value Git-Commit
+Set-Alias -Name gitb -Value Git-Biome
+Set-Alias -Name gitd -Value Git-Deno
 ```
