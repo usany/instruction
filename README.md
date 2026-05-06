@@ -38,6 +38,7 @@ You can start developing by editing the files inside the **app** directory. This
 9. crawling
 10. infra
 
+# ZSH
 ```bash
 function gab() {
     stagedFiles=$(git diff --cached --name-only)
@@ -84,6 +85,7 @@ function gcb() {
   git --no-pager log --stat -1
 }
 ```
+# POSH
 ```bash
 # Git-Biome
 function gitb() {
