@@ -84,3 +84,46 @@ function gcb() {
   git --no-pager log --stat -1
 }
 ```
+```bash
+# Git-Biome
+function gitb() {
+    stagedFiles=$(git diff --cached --name-only)
+
+    if [[ -z "$stagedFiles" ]]; then
+        echo "No staged files found. Aborting commit."
+        return 1
+    fi
+
+    echo "Running biome format on staged files..."
+    npx biome check --write -- $stagedFiles
+
+    echo "Re-adding formatted files to commit..."
+    git add $stagedFiles
+}
+
+# Git-Deno
+function gitd() {
+    stagedFiles=$(git diff --cached --name-only)
+
+    if [[ -z "$stagedFiles" ]]; then
+        echo "No staged files found. Aborting commit."
+        return 1
+    fi
+
+    echo "Running deno lint on staged files..."
+    deno lint $stagedFiles
+
+    echo "Running deno format on staged files..."
+    deno fmt $stagedFiles
+    if [[ $? -ne 0 ]]; then
+        echo "Deno format failed. Aborting commit."
+        return 1
+    fi
+
+    git add $stagedFiles
+}
+
+# Aliases
+alias gab="gitb"
+alias gad="gitd"
+```
