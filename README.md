@@ -37,3 +37,50 @@ You can start developing by editing the files inside the **app** directory. This
 8. docs include settings
 9. crawling
 10. infra
+
+```bash
+function gab() {
+    stagedFiles=$(git diff --cached --name-only)
+
+    if [[ -z "$stagedFiles" ]]; then
+        echo "No staged files found. Aborting commit."
+        return 1
+    fi
+
+    echo "Running biome format on staged files..."
+    npx biome check --write -- $stagedFiles
+
+    echo "Re-adding formatted files to commit..."
+    git add $stagedFiles
+}
+function gad() {
+    stagedFiles=$(git diff --cached --name-only)
+
+    if [[ -z "$stagedFiles" ]]; then
+        echo "No staged files found. Aborting commit."
+        return 1
+    fi
+
+    echo "Running deno lint on staged files..."
+    deno lint $stagedFiles
+
+    echo "Running deno format on staged files..."
+    deno fmt $stagedFiles
+    if [[ $? -ne 0 ]]; then
+        echo "Deno format failed. Aborting commit."
+        return 1
+    fi
+
+    git add $stagedFiles
+}
+function gcb() {
+  # Generate commit message using opencode
+  msg=$(git diff --cached | opencode --model opencode/big-pickle run "Write a commit message in the Conventional Commits format without backticks in short")
+
+  # Commit with generated message
+  git commit -m "$msg" -n
+
+  # Show the last commit with stats
+  git --no-pager log --stat -1
+}
+```
